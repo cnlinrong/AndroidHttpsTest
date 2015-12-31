@@ -1,0 +1,29 @@
+// 生成服务端密钥库（注意：别名为服务端证书别名，密钥库类型为JKS，有效期10年）
+keytool -genkey -alias server_side -keyalg RSA -keypass 123456 -keystore server_side.jks -storepass 123456 -validity 3650
+
+// 导出服务端证书（注意：导出的证书为DER二进制编码格式，与导出证书的后缀名无关）
+keytool -export -alias server_side -file server_side.cer -keystore server_side.jks -storepass 123456
+
+// 生成客户端密钥库（注意：密钥库类型为PKCS12，该类型密钥库无法导入证书，有效期10年）
+keytool -genkey -alias client_side -keyalg RSA -keypass 123456 -keystore client_side.p12 -storepass 123456 -storetype PKCS12 -validity 3650
+
+// 导出客户端证书（注意：导出的证书为DER二进制编码，与导出证书的后缀名无关，必须指定密钥库类型为PKCS12）
+keytool -export -alias client_side -file client_side.cer -keystore client_side.p12 -storepass 123456 -storetype PKCS12
+
+// 将客户端证书导入服务端密钥库（注意：别名为客户端证书别名，如果密钥库不存在将自动创建）
+keytool -import -alias client_side -file client_side.cer -keystore server_side.jks -storepass 123456
+
+// 将服务端证书导入客户端密钥库（注意：别名为服务端证书别名，如果密钥库不存在将自动创建）
+keytool -import -alias server_side -file server_side.cer -keystore client_side.jks -storepass 123456
+
+// 查看证书详情
+keytool -printcert -file server_side.cer
+keytool -printcert -file client_side.cer
+
+// 查看证书详情（加-rfc则只显示证书内容）
+keytool -printcert -file server_side.cer -rfc
+keytool -printcert -file client_side.cer -rfc
+
+// 查看密钥库详情
+keytool -list -v -keystore server_side.jks -storepass 123456
+keytool -list -v -keystore client_side.jks -storepass 123456
